@@ -1,6 +1,6 @@
 use glam::Vec3;
 use rand::distributions::Uniform;
-use rand::Rng;
+use rand::{thread_rng, Rng};
 
 pub fn clamp(value: f32, min: f32, max: f32) -> f32 {
     if value < min {
@@ -50,11 +50,7 @@ fn _random_in_hemisphere(normal: Vec3) -> Vec3 {
 
 pub fn random_in_unit_disk() -> Vec3 {
     loop {
-        let p = Vec3::new(
-            rand::random::<f32>() * 2.0 - 1.0,
-            rand::random::<f32>() * 2.0 - 1.0,
-            0.0,
-        );
+        let p = Vec3::new(thread_rng().gen_range(-1.0, 1.0), thread_rng().gen_range(-1.0, 1.0), 0.0);
         if p.length_squared() < 1.0 {
             return p;
         }
@@ -72,4 +68,12 @@ pub fn schlick(cosine: f32, refractive_index: f32) -> f32 {
     let mut r0 = (1.0 - refractive_index) / (1.0 + refractive_index);
     r0 = r0 * r0;
     r0 + (1.0 - r0) * (1.0 - cosine).powi(5)
+}
+
+pub fn get_uv_unit_sphere(point: Vec3) -> (f32, f32) {
+    let phi = point.z().atan2(point.x());
+    let theta = point.y().asin();
+    let u = 1.0 - (phi + std::f32::consts::PI) / (2.0 * std::f32::consts::PI);
+    let v = (theta + std::f32::consts::PI / 2.0) / std::f32::consts::PI;
+    (u, v)
 }

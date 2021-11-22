@@ -55,11 +55,7 @@ impl Camera {
 
         Ray::new(
             self.origin + offset,
-            self.lower_left_corner
-                + Vec3::splat(1.0 - s) * self.horizontal
-                + Vec3::splat(t) * self.vertical
-                - self.origin
-                - offset,
+            self.lower_left_corner + Vec3::splat(1.0 - s) * self.horizontal + Vec3::splat(t) * self.vertical - self.origin - offset,
         )
     }
 }
