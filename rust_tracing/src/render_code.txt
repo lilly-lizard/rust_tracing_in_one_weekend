@@ -1,0 +1,64 @@
+// render 14.55s
+
+for j in 0..HEIGHT
+{
+    let remaining = HEIGHT - j;
+    if remaining % 10 == 0
+    {
+        println!("scanlines remaining: {}", remaining);
+    }
+
+    let mut pixels: [Vec3; WIDTH] = [Vec3::zero(); WIDTH];
+
+    for i in 0..WIDTH
+    {
+        let mut color: Vec3 = Vec3::zero();
+
+        for _s in 0..SAMPLES_PER_PIXEL
+        {
+            let u: f32 = (i as f32 + rand::random::<f32>()) / (WIDTH  - 1) as f32;
+            let v: f32 = (j as f32 + rand::random::<f32>()) / (HEIGHT - 1) as f32;
+
+            let ray = camera.get_ray(u, v);
+
+            color += ray_color(ray, &world, MAX_BOUNCES);
+        }
+        
+        pixels[i] = color;
+    }
+    
+    // write to file
+    
+    for i in 0..WIDTH
+    {
+        write_pixel(&mut file, pixels[i], SAMPLES_PER_PIXEL);
+    }
+}
+ 
+// render 14.919s
+
+for j in 0..HEIGHT
+{
+    let remaining = HEIGHT - j;
+    if remaining % 10 == 0
+    {
+        println!("scanlines remaining: {}", remaining);
+    }
+
+    for i in 0..WIDTH
+    {
+        let mut color: Vec3 = Vec3::zero();
+
+        for _s in 0..SAMPLES_PER_PIXEL
+        {
+            let u: f32 = (i as f32 + rand::random::<f32>()) / (WIDTH  - 1) as f32;
+            let v: f32 = (j as f32 + rand::random::<f32>()) / (HEIGHT - 1) as f32;
+
+            let ray = camera.get_ray(u, v);
+
+            color += ray_color(ray, &world, MAX_BOUNCES);
+        }
+        
+        write_pixel(&mut file, color, SAMPLES_PER_PIXEL);
+    }
+}
