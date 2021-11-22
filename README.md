@@ -1,4 +1,4 @@
-# Rust Tracing in One Weekend
+# Rust Tracing: The Next Week
 
 A sketchy rust implementation of the the "Ray Tracing in One Weekend" series by Peter Shirley which can be found at [raytracing.github.io](https://raytracing.github.io/).
 
