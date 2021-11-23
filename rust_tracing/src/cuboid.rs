@@ -38,11 +38,7 @@ impl Cuboid {
             .list
             .push(Box::new(AxisRectangle::new_yz(p0.y(), p1.y(), p0.z(), p1.z(), p0.x(), material.clone())));
 
-        Self {
-            min: p0,
-            max: p1,
-            sides: sides,
-        }
+        Self { min: p0, max: p1, sides: sides }
     }
 }
 impl Hittable for Cuboid {

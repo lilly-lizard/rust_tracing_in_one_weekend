@@ -66,17 +66,7 @@ impl AxisRectangle {
         )
     }
 
-    fn new(
-        c0: [f32; 2],
-        c1: [f32; 2],
-        k: f32,
-        axis_u: Axis,
-        axis_v: Axis,
-        axis_normal: Axis,
-        material: Arc<dyn Material>,
-        aabb_bottom: Vec3,
-        aabb_top: Vec3,
-    ) -> Self {
+    fn new(c0: [f32; 2], c1: [f32; 2], k: f32, axis_u: Axis, axis_v: Axis, axis_normal: Axis, material: Arc<dyn Material>, aabb_bottom: Vec3, aabb_top: Vec3) -> Self {
         Self {
             c0: c0,
             c1: c1,

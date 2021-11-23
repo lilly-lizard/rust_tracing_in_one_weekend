@@ -65,14 +65,7 @@ impl Hittable for ConstantMedium {
         }
 
         let t = rec1_t + hit_distance;
-        Some(HitRecord::new_hit(
-            t,
-            ray.at(t),
-            Vec3::zero(),
-            ray,
-            (0.0, 0.0),
-            self.phase_function.clone(),
-        ))
+        Some(HitRecord::new_hit(t, ray.at(t), Vec3::zero(), ray, (0.0, 0.0), self.phase_function.clone()))
     }
     fn bounding_box(&self) -> AABB {
         self.boundary.bounding_box()
@@ -97,7 +90,7 @@ impl Material for Isotropic {
     fn scatter(&self, _ray_direction: &Vec3, hit_record: &HitRecord) -> Option<ScatteredRay> {
         Some(ScatteredRay {
             ray: Ray::new(hit_record.point(), random_in_unit_sphere()),
-            attenuation: self.albedo.color(hit_record.uv(), &hit_record.point()),
+            albedo: self.albedo.color(hit_record.uv(), &hit_record.point()),
         })
     }
     fn emitted(&self, _uv: (f32, f32), _point: &Vec3) -> Vec3 {

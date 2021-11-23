@@ -55,9 +55,6 @@ impl Hittable for Sphere {
     }
 
     fn bounding_box(&self) -> AABB {
-        AABB::new(
-            self.center - Vec3::splat(self.radius as f32),
-            self.center + Vec3::splat(self.radius as f32),
-        )
+        AABB::new(self.center - Vec3::splat(self.radius as f32), self.center + Vec3::splat(self.radius as f32))
     }
 }

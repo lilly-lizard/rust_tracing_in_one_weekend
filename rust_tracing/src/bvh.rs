@@ -73,17 +73,17 @@ impl BVHNode {
         let axis: usize = thread_rng().gen_range(0, 3);
         let num_objects = end - start + 1;
 
-        let mut object_left: Box<dyn Hittable> = objects.list[start].clone();
-        let mut object_right: Box<dyn Hittable> = objects.list[start].clone();
+        let mut object_left = objects.list[start].clone();
+        let mut object_right = objects.list[start].clone();
         if num_objects == 2 {
             object_right = objects.list[end].clone();
         } else if num_objects > 2 {
-            let mut sorted_objects = objects.list.clone();
-            sorted_objects.sort_by(|a, b| box_compare(&a, &b, axis));
+            let mut sorted_objects = objects.clone();
+            sorted_objects.list.sort_by(|a, b| box_compare(&a, &b, axis));
             let mid = start + num_objects / 2; // bias towards upper
 
-            object_left = Box::new(BVHNode::new(objects, start, mid - 1));
-            object_right = Box::new(BVHNode::new(objects, mid, end));
+            object_left = Box::new(BVHNode::new(&sorted_objects, start, mid - 1));
+            object_right = Box::new(BVHNode::new(&sorted_objects, mid, end));
         }
 
         let box_left = object_left.bounding_box();
@@ -98,17 +98,26 @@ impl BVHNode {
 impl Hittable for BVHNode {
     fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
         if !self.aabb.is_hit(ray, t_min, t_max) {
-            return None;
+            return None
         }
-
+		
         let hit_left = self.left.hit(ray, t_min, t_max);
-        let hit_right = self.right.hit(ray, t_min, t_max);
-        if let Some(_) = hit_left {
-            if let Some(_) = hit_right {
-                return Some(HitRecord::new_hit_empty());
-            }
-        }
-        None
+		let hit_right = self.right.hit(ray, t_min, t_max);
+		
+		if let Some(left) = &hit_left {
+			if let Some(right) = &hit_right {
+				// both left and right hits present, return the closest
+				if left.t() < right.t() {
+					return hit_left
+				} else {
+					return hit_right
+				}
+			} else {
+				return hit_left
+			}
+		} else {
+			return hit_right
+		}
     }
 
     fn bounding_box(&self) -> AABB {

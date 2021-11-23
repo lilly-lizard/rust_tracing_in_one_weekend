@@ -4,11 +4,13 @@ use glam::Vec3;
 use crate::hit_record::HitRecord;
 use crate::ray::{Ray, ScatteredRay};
 use crate::texture::{SolidColor, Texture};
-use crate::tools::{random_in_unit_sphere, random_unit_vector, reflect, refract, schlick};
+use crate::tools::{onb_build_from_w, onb_local, random_cosine_direction};
+use std::f32::consts::PI;
 
 pub trait Material: DynClone + Send + Sync {
-    fn scatter(&self, ray_direction: &Vec3, hit_record: &HitRecord) -> Option<ScatteredRay>;
-    fn emitted(&self, uv: (f32, f32), point: &Vec3) -> Vec3;
+	fn scatter(&self, ray_direction: &Vec3, hit_record: &HitRecord) -> Option<ScatteredRay>;
+	fn scattering_pdf(&self, ray_in: &Ray, hit_record: &HitRecord, scattered: &Ray) -> f32;
+    fn emitted(&self, hit_record: &HitRecord) -> Vec3;
 }
 dyn_clone::clone_trait_object!(Material);
 
@@ -30,17 +32,28 @@ impl Lambertian {
 }
 impl Material for Lambertian {
     fn scatter(&self, _ray_direction: &Vec3, hit_record: &HitRecord) -> Option<ScatteredRay> {
-        let scatter_direction: Vec3 = hit_record.normal() + random_unit_vector();
+		let uvw = onb_build_from_w(&hit_record.normal());
+		let scatter_direction = onb_local(uvw, random_cosine_direction());
+
         Some(ScatteredRay {
             ray: Ray::new(hit_record.point(), scatter_direction),
-            attenuation: self.albedo.color(hit_record.uv(), &hit_record.point()),
+			albedo: self.albedo.color(hit_record.uv(), &hit_record.point()),
+			pdf: scatter_direction.dot(uvw[2]) / PI,
         })
     }
-    fn emitted(&self, _uv: (f32, f32), _point: &Vec3) -> Vec3 {
+	fn scattering_pdf(&self, _ray_in: &Ray, hit_record: &HitRecord, scattered: &Ray) -> f32 {
+		let cosine = hit_record.normal().dot(scattered.unit_direction());
+		if cosine < 0.0 {
+			return 0.0
+		} else {
+			return cosine / PI
+		}
+	}
+    fn emitted(&self, _hit_record: &HitRecord) -> Vec3 {
         Vec3::zero()
     }
 }
-
+/*
 #[derive(Clone)]
 pub struct Metal {
     albedo: Vec3,
@@ -119,7 +132,7 @@ impl Material for Dielectric {
         Vec3::zero()
     }
 }
-
+*/
 #[derive(Clone)]
 pub struct DiffuseLight {
     emit: Box<dyn Texture>,
@@ -136,9 +149,16 @@ impl DiffuseLight {
 }
 impl Material for DiffuseLight {
     fn scatter(&self, _ray_direction: &Vec3, _hit_record: &HitRecord) -> Option<ScatteredRay> {
-        None // no reflection
+        None // no reflection/scattering
     }
-    fn emitted(&self, uv: (f32, f32), point: &Vec3) -> Vec3 {
-        self.emit.color(uv, point)
+	fn scattering_pdf(&self, _ray_in: &Ray, _hit_record: &HitRecord, _scattered: &Ray) -> f32 {
+		0.0 // no scattering
+	}
+    fn emitted(&self, hit_record: &HitRecord) -> Vec3 {
+		if hit_record.front_face() {
+			return self.emit.color(hit_record.uv(), &hit_record.point())
+		} else {
+			return Vec3::zero()
+		}
     }
 }

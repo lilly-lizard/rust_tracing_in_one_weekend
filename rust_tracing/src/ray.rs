@@ -28,5 +28,6 @@ impl Ray {
 
 pub struct ScatteredRay {
     pub ray: Ray,
-    pub attenuation: Vec3,
+	pub albedo: Vec3,
+	pub pdf: f32,
 }
