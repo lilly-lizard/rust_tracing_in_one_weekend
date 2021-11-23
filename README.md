@@ -1,4 +1,4 @@
-# Rust Tracing: The Next Week
+# Rust Tracing: The Rest of Your Life
 
 A sketchy rust implementation of the the "Ray Tracing in One Weekend" series by Peter Shirley which can be found at [raytracing.github.io](https://raytracing.github.io/).
 
