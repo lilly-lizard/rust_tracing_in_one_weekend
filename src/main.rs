@@ -22,7 +22,6 @@ use sphere::Sphere;
 // ash, sdl2, microprofile
 
 // config
-const THREAD_COUNT: usize = 12;
 const WIDTH: usize = 600;
 const HEIGHT: usize = 400;
 const SAMPLES_PER_PIXEL: i32 = 50;
@@ -182,10 +181,12 @@ fn main() {
         focus_distance,
     );
 
+    let thread_count = num_cpus::get();
+
     // start render threads
     let (tx_return, rx_return): (Sender<ThreadReturnData>, Receiver<ThreadReturnData>) =
         mpsc::channel();
-    for t in 0..THREAD_COUNT {
+    for t in 0..thread_count {
         let tx_return_clone = mpsc::Sender::clone(&tx_return);
         let world_clone = world.clone();
         let camera_clone = camera.clone();
@@ -222,7 +223,7 @@ fn main() {
                 }
 
                 return_data.color_data.push(color);
-                pixel_index = pixel_index + THREAD_COUNT;
+                pixel_index = pixel_index + thread_count;
             }
             tx_return_clone.send(return_data).unwrap();
         });
@@ -230,10 +231,10 @@ fn main() {
 
     // wait for threads to complete rendering respective pixels
     let mut pixels = vec![Vec3::splat(-1.0); WIDTH * HEIGHT];
-    for _t in 0..THREAD_COUNT {
+    for _t in 0..thread_count {
         let return_data: ThreadReturnData = rx_return.recv().unwrap();
         for i in 0..return_data.color_data.len() {
-            pixels[return_data.thread_id + i * THREAD_COUNT] = return_data.color_data[i];
+            pixels[return_data.thread_id + i * thread_count] = return_data.color_data[i];
         }
     }
 
