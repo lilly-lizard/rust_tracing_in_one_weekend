@@ -1,7 +1,7 @@
 [package]
-name = "aidac"
-version = "0.1.0"
-authors = ["david-sharkoon-win <dasco597@gmail.com>"]
+name = "rust_tracing"
+version = "0.3.0"
+authors = ["dave-is-dave"]
 edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
