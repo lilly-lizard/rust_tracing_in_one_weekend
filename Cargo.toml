@@ -1,5 +1,5 @@
 [package]
-name = "aidac"
+name = "rust_tracing"
 version = "0.2.0"
 authors = ["dave-is-dave"]
 edition = "2018"
